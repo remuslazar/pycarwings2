@@ -129,8 +129,6 @@ class Session(object):
             response = sess.send(req)
             log.debug('Response HTTP Status Code: {status_code}'.format(
                 status_code=response.status_code))
-            log.debug('Response HTTP Response Body: {content}'.format(
-                content=response.content))
             log.debug('Response HTTP Response Text: {text}'.format(
                 text=response.text))
         except RequestException:
