@@ -68,3 +68,8 @@ exemples/my_config.ini
 my_config.ini
 *.rsls
 .idea
+
+#ignore vim temporary files
+*~
+*.swo
+*.swp
