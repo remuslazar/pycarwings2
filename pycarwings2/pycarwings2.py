@@ -155,9 +155,9 @@ class Session(object):
         })
         ret = CarwingsInitialAppResponse(response)
 
-        c1 = Blowfish.new(ret.baseprm, Blowfish.MODE_ECB)
+        c1 = Blowfish.new(ret.baseprm.encode(), Blowfish.MODE_ECB)
         packedPassword = _PKCS5Padding(self.password)
-        encryptedPassword = c1.encrypt(packedPassword)
+        encryptedPassword = c1.encrypt(packedPassword.encode())
         encodedPassword = base64.standard_b64encode(encryptedPassword)
 
         response = self._request("UserLoginRequest.php", {
