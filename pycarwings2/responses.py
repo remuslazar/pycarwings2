@@ -521,15 +521,25 @@ class CarwingsDrivingAnalysisResponse(CarwingsResponse):
 	    "TargetDate": "2016/02/19 17:12"
 	  }
 	}
+    
+    # no data returned from API (perhaps due to no recent communication to car)
+    {
+        "status": 200
+    }
 
 """
 
 
 class CarwingsLatestBatteryStatusResponse(CarwingsResponse):
     def __init__(self, status):
-        CarwingsResponse.__init__(self, status["BatteryStatusRecords"])
 
         self.answer = status
+        
+        if not status.has_key("BatteryStatusRecords"):
+            return
+
+        CarwingsResponse.__init__(self, status["BatteryStatusRecords"])
+
 
         recs = status["BatteryStatusRecords"]
 
