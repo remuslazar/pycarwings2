@@ -146,7 +146,9 @@ class CarwingsLoginResponse(CarwingsResponse):
         customer_info = response["CustomerInfo"]
         self.tz = customer_info["Timezone"]
         self.language = customer_info["Language"]
-        self.user_vehicle_bound_time = customer_info["VehicleInfo"]["UserVehicleBoundTime"]
+        self.user_vehicle_bound_time = \
+                customer_info["VehicleInfo"].get("UserVehicleBoundTime",
+                                                 "1970-01-01T00:00:00Z")
 
         self.leafs = [{
             "vin": self.vin,
