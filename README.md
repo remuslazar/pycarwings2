@@ -1,6 +1,10 @@
 # pycarwings2
 
 [![Build Status](https://travis-ci.com/filcole/pycarwings2.svg?branch=master)](https://travis-ci.com/filcole/pycarwings2)
+[![PyPI](https://img.shields.io/pypi/v/pycarwings2)](https://pypi.org/project/pycarwings2)
+[![Python](https://img.shields.io/pypi/pyversions/pycarwings2)](https://pypi.org/project/pycarwings2)
+[![Downloads](https://img.shields.io/pypi/dm/pycarwings2)](https://pypi.org/project/pycarwings2)
+[![License](https://img.shields.io/pypi/l/pycarwings2)](https://pypi.org/project/pycarwings2)
 
 Python3 version of the pycarwings2 library.
 
