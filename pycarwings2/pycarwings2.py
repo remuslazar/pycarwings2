@@ -134,7 +134,7 @@ class Session(object):
 
         try:
             sess = requests.Session()
-            response = sess.send(req)
+            response = sess.send(req, timeout=600.0)
             log.debug('Response HTTP Status Code: {status_code}'.format(
                 status_code=response.status_code))
             log.debug('Response HTTP Response Body: {content}'.format(
