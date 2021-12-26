@@ -134,7 +134,9 @@ class Session(object):
 
         try:
             sess = requests.Session()
-            response = sess.send(req, timeout=600.0)
+            # Nissan servers sometimes do not respond. 
+            # Connections seem OK, but reads are slow and may not be successful
+            response = sess.send(req, timeout=(5.0, 600.0))
             log.debug('Response HTTP Status Code: {status_code}'.format(
                 status_code=response.status_code))
             log.debug('Response HTTP Response Body: {content}'.format(
