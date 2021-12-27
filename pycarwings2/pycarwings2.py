@@ -26,15 +26,15 @@ Information about Nissan on the web (e.g. http://nissannews.com/en-US/nissan/usa
 suggests others (this page suggests NMEX for Mexico, NLAC for Latin America) but
 these have not been confirmed.
 
-There are three asynchronous operations in this API, paired with three follow-up
-"status check" methods.
+There are three asynchronous operations in this API. Climate control is a fire and forget
+whereas a update has an "status check" method.
 
     request_update           -> get_status_from_update
-    start_climate_control    -> get_start_climate_control_result
-    stop_climate_control     -> get_stop_climate_control_result
+    start_climate_control
+    stop_climate_control
 
-The asynchronous operations immediately return a 'result key', which
-is then supplied as a parameter for the corresponding status check method.
+The request_update asynchronous operation returns a 'result key', can
+then be supplied as a parameter for the get_status_from_update method.
 
 Here's an example response from an asynchronous operation, showing the result key:
 
@@ -45,7 +45,7 @@ Here's an example response from an asynchronous operation, showing the result ke
         "resultKey":"12345678901234567890123456789012345678901234567890"
     }
 
-The status check methods return a JSON blob containing a 'responseFlag' property.
+The status check method returns a JSON blob containing a 'responseFlag' property.
 If the communications are complete, the response flag value will be the string "1";
 otherwise the value will be the string "0". You just gotta poll until you get a
 "1" back. Note that the official app seems to poll every 20 seconds.
@@ -134,7 +134,7 @@ class Session(object):
 
         try:
             sess = requests.Session()
-            # Nissan servers sometimes do not respond. 
+            # Nissan servers sometimes do not respond.
             # Connections seem OK, but reads are slow and may not be successful
             response = sess.send(req, timeout=(5.0, 600.0))
             log.debug('Response HTTP Status Code: {status_code}'.format(
@@ -261,21 +261,6 @@ class Leaf:
         })
         return response["resultKey"]
 
-    def get_start_climate_control_result(self, result_key):
-        response = self.session._request_with_retry("ACRemoteResult.php", {
-            "RegionCode": self.session.region_code,
-            "lg": self.session.language,
-            "DCMID": self.session.dcm_id,
-            "VIN": self.vin,
-            "tz": self.session.tz,
-            "UserId": self.session.gdc_user_id,     # this userid is the 'gdc' userid
-            "resultKey": result_key,
-        })
-        if response["responseFlag"] == "1":
-            return CarwingsStartClimateControlResponse(response)
-
-        return None
-
     def stop_climate_control(self):
         response = self.session._request_with_retry("ACRemoteOffRequest.php", {
             "RegionCode": self.session.region_code,
@@ -285,21 +270,6 @@ class Leaf:
             "tz": self.session.tz,
         })
         return response["resultKey"]
-
-    def get_stop_climate_control_result(self, result_key):
-        response = self.session._request_with_retry("ACRemoteOffResult.php", {
-            "RegionCode": self.session.region_code,
-            "lg": self.session.language,
-            "DCMID": self.session.dcm_id,
-            "VIN": self.vin,
-            "tz": self.session.tz,
-            "UserId": self.session.gdc_user_id,     # this userid is the 'gdc' userid
-            "resultKey": result_key,
-        })
-        if response["responseFlag"] == "1":
-            return CarwingsStopClimateControlResponse(response)
-
-        return None
 
     # execute time example: "2016-02-09 17:24"
     # I believe this time is specified in GMT, despite the "tz" parameter
@@ -434,34 +404,5 @@ class Leaf:
         })
         if response["status"] == 200:
             return CarwingsElectricRateSimulationResponse(response)
-
-        return None
-
-    def request_location(self):
-        # As of 25th July the Locate My Vehicle functionality of the Europe version of the
-        # Nissan APIs was removed.  It may return, so this call is left here.
-        # It currently errors with a 404 MyCarFinderRequest.php was not found on this server
-        # for European users.
-        response = self.session._request_with_retry("MyCarFinderRequest.php", {
-            "RegionCode": self.session.region_code,
-            "lg": self.session.language,
-            "DCMID": self.session.dcm_id,
-            "VIN": self.vin,
-            "tz": self.session.tz,
-            "UserId": self.session.gdc_user_id,     # this userid is the 'gdc' userid
-        })
-        return response["resultKey"]
-
-    def get_status_from_location(self, result_key):
-        response = self.session._request_with_retry("MyCarFinderResultRequest.php", {
-            "RegionCode": self.session.region_code,
-            "lg": self.session.language,
-            "DCMID": self.session.dcm_id,
-            "VIN": self.vin,
-            "tz": self.session.tz,
-            "resultKey": result_key,
-        })
-        if response["responseFlag"] == "1":
-            return CarwingsMyCarFinderResponse(response)
 
         return None

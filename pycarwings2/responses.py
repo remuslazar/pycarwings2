@@ -372,51 +372,6 @@ class CarwingsLatestClimateControlStatusResponse(CarwingsResponse):
             )
 
 
-class CarwingsStartClimateControlResponse(CarwingsResponse):
-    """
-        {
-            "status":200,
-            "message":"success",
-            "responseFlag":"1",
-            "operationResult":"START_BATTERY",
-            "acContinueTime":"15",
-            "cruisingRangeAcOn":"106400.0",
-            "cruisingRangeAcOff":"107920.0",
-            "timeStamp":"2016-02-05 12:59:46",
-            "hvacStatus":"ON"
-        }
-    """
-    def __init__(self, status):
-        CarwingsResponse.__init__(self, status)
-
-        self._set_timestamp(status)
-        self._set_cruising_ranges(status)
-
-        self.operation_result = status["operationResult"]     # e.g. "START_BATTERY", ...?
-        self.ac_continue_time = timedelta(minutes=float(status["acContinueTime"]))
-        self.hvac_status = status["hvacStatus"]               # "ON" or "OFF"
-        self.is_hvac_running = ("ON" == self.hvac_status)
-
-
-class CarwingsStopClimateControlResponse(CarwingsResponse):
-    """
-        {
-            "status":200,
-            "message":"success",
-            "responseFlag":"1",
-            "operationResult":"START",
-            "timeStamp":"2016-02-09 03:32:51",
-            "hvacStatus":"OFF"
-        }
-    """
-    def __init__(self, status):
-        CarwingsResponse.__init__(self, status)
-
-        self._set_timestamp(status)
-        self.hvac_status = status["hvacStatus"]                # "ON" or "OFF"
-        self.is_hvac_running = ("ON" == self.hvac_status)
-
-
 class CarwingsClimateControlScheduleResponse(CarwingsResponse):
     """
         {
@@ -690,37 +645,3 @@ class CarwingsElectricRateSimulationResponse(CarwingsResponse):
         self.electricity_rate = r["ElectricPrice"]
         self.electric_bill = r["ElectricBill"]
         self.electric_cost_scale = r["ElectricCostScale"]    # e.g. "miles/kWh"
-
-
-class CarwingsMyCarFinderResponse(CarwingsResponse):
-    """
-        {
-            "Location": {
-                "Country": "",
-                "Home": "OUTSIDE",
-                "LatitudeDeg": "69",
-                "LatitudeMin": "41",
-                "LatitudeMode": "NORTH",
-                "LatitudeSec": "5540",
-                "LocationType": "WGS84",
-                "LongitudeDeg": "18",
-                "LongitudeMin": "38",
-                "LongitudeMode": "EAST",
-                "LongitudeSec": "2506",
-                "Position": "UNAVAILABLE"
-            },
-            "TargetDate": "2017/11/29 20:02",
-            "lat": "69.698722222222",
-            "lng": "18.640294444444",
-            "receivedDate": "2017/11/29 20:02",
-            "responseFlag": "1",
-            "resultCode": "1",
-            "status": 200,
-            "timeStamp": "2017-11-29 20:02:45"
-        }
-    """
-    def __init__(self, status):
-        CarwingsResponse.__init__(self, status)
-
-        self.latitude = status["lat"]
-        self.longitude = status["lng"]
