@@ -45,7 +45,8 @@ class CarwingsResponse:
         # seems to indicate that the vehicle cannot be reached
         if ("ELECTRIC_WAVE_ABNORMAL" == op_result):
             log.error("could not establish communications with vehicle")
-            raise pycarwings2.CarwingsError("could not establish communications with vehicle")
+            raise pycarwings2.CarwingsError(
+                "could not establish communications with vehicle")
 
     def _set_cruising_ranges(self, status, off_key="cruisingRangeAcOff", on_key="cruisingRangeAcOn"):
         if off_key in status:
@@ -54,7 +55,8 @@ class CarwingsResponse:
             self.cruising_range_ac_on_km = float(status[on_key]) / 1000
 
     def _set_timestamp(self, status):
-        self.timestamp = datetime.strptime(status["timeStamp"], "%Y-%m-%d %H:%M:%S")   # "2016-01-02 17:17:38"
+        self.timestamp = datetime.strptime(
+            status["timeStamp"], "%Y-%m-%d %H:%M:%S")   # "2016-01-02 17:17:38"
 
 
 class CarwingsInitialAppResponse(CarwingsResponse):
@@ -125,7 +127,14 @@ class CarwingsLoginResponse(CarwingsResponse):
             },
             "UserInfoRevisionNo":"1"
         }
+
+        example JSON response to login when subscription has expired. Resubscribe via the Nissan Connect EV website.
+        {
+            "status":"AAS-604",
+            "message":"INVALID PARAMS"
+        }
     """
+
     def __init__(self, response):
         CarwingsResponse.__init__(self, response)
 
@@ -262,6 +271,7 @@ class CarwingsBatteryStatusResponse(CarwingsResponse):
         }
 
     """
+
     def __init__(self, status):
         CarwingsResponse.__init__(self, status)
 
@@ -273,7 +283,8 @@ class CarwingsBatteryStatusResponse(CarwingsResponse):
         self.battery_capacity = status["batteryCapacity"]
         self.battery_degradation = status["batteryDegradation"]
 
-        self.is_connected = ("NOT_CONNECTED" != status["pluginState"])    # fun double negative
+        # fun double negative
+        self.is_connected = ("NOT_CONNECTED" != status["pluginState"])
         self.plugin_state = status["pluginState"]
 
         self.charging_status = status["chargeMode"]
@@ -281,11 +292,15 @@ class CarwingsBatteryStatusResponse(CarwingsResponse):
         self.is_charging = ("YES" == status["charging"])
 
         self.is_quick_charging = ("RAPIDLY_CHARGING" == status["chargeMode"])
-        self.is_connected_to_quick_charger = ("QC_CONNECTED" == status["pluginState"])
+        self.is_connected_to_quick_charger = (
+            "QC_CONNECTED" == status["pluginState"])
 
-        self.time_to_full_trickle = timedelta(minutes=_time_remaining(status["timeRequiredToFull"]))
-        self.time_to_full_l2 = timedelta(minutes=_time_remaining(status["timeRequiredToFull200"]))
-        self.time_to_full_l2_6kw = timedelta(minutes=_time_remaining(status["timeRequiredToFull200_6kW"]))
+        self.time_to_full_trickle = timedelta(
+            minutes=_time_remaining(status["timeRequiredToFull"]))
+        self.time_to_full_l2 = timedelta(
+            minutes=_time_remaining(status["timeRequiredToFull200"]))
+        self.time_to_full_l2_6kw = timedelta(
+            minutes=_time_remaining(status["timeRequiredToFull200_6kW"]))
 
         # For some leafs the battery_percent is not returned
         self.battery_percent = 100 * float(self.battery_degradation) / 12
@@ -354,11 +369,13 @@ class CarwingsLatestClimateControlStatusResponse(CarwingsResponse):
         }
 
     """
+
     def __init__(self, status):
         CarwingsResponse.__init__(self, status["RemoteACRecords"])
         racr = status["RemoteACRecords"]
 
-        self._set_cruising_ranges(racr, on_key="CruisingRangeAcOn", off_key="CruisingRangeAcOff")
+        self._set_cruising_ranges(
+            racr, on_key="CruisingRangeAcOn", off_key="CruisingRangeAcOff")
 
         # If no empty RemoteACRecords list is returned then assume CC is off.
         if type(racr) is not dict:
@@ -383,13 +400,18 @@ class CarwingsClimateControlScheduleResponse(CarwingsResponse):
             "TargetDate":"2016/02/10 01:00"
         }
     """
+
     def __init__(self, status):
         CarwingsResponse.__init__(self, status)
 
-        self.display_execute_time = status["DisplayExecuteTime"]         # displayable, timezone-adjusted
-        self.execute_time = datetime.strptime(status["ExecuteTime"] + " UTC", "%Y-%m-%d %H:%M:%S %Z")   # GMT
-        self.display_last_scheduled_time = status["LastScheduledTime"]   # displayable, timezone-adjusted
-        self.last_scheduled_time = datetime.strptime(status["LastScheduledTime"], "%b %d, %Y %I:%M %p")
+        # displayable, timezone-adjusted
+        self.display_execute_time = status["DisplayExecuteTime"]
+        self.execute_time = datetime.strptime(
+            status["ExecuteTime"] + " UTC", "%Y-%m-%d %H:%M:%S %Z")   # GMT
+        # displayable, timezone-adjusted
+        self.display_last_scheduled_time = status["LastScheduledTime"]
+        self.last_scheduled_time = datetime.strptime(
+            status["LastScheduledTime"], "%b %d, %Y %I:%M %p")
         # unknown purpose; don't surface to avoid confusion
         # self.target_date = status["TargetDate"]
 
@@ -422,6 +444,7 @@ class CarwingsDrivingAnalysisResponse(CarwingsResponse):
             }
         }
     """
+
     def __init__(self, status):
         CarwingsResponse.__init__(self, status)
 
@@ -451,7 +474,8 @@ class CarwingsDrivingAnalysisResponse(CarwingsResponse):
 
         self.electric_cost_scale = status["DriveAnalysisBasicScreenResponsePersonalData"]["ElectricCostScale"]
 
-        self.advice = [status["AdviceList"]["Advice"]]  # will contain "title" and "body"
+        # will contain "title" and "body"
+        self.advice = [status["AdviceList"]["Advice"]]
 
 
 class CarwingsLatestBatteryStatusResponse(CarwingsResponse):
@@ -575,6 +599,7 @@ class CarwingsLatestBatteryStatusResponse(CarwingsResponse):
           }
         }
     """
+
     def __init__(self, status):
         CarwingsResponse.__init__(self, status["BatteryStatusRecords"])
         self.answer = status
@@ -585,27 +610,35 @@ class CarwingsLatestBatteryStatusResponse(CarwingsResponse):
         self.battery_capacity = bs["BatteryCapacity"]
         self.battery_remaining_amount = bs["BatteryRemainingAmount"]
         self.charging_status = bs["BatteryChargingStatus"]
-        self.is_charging = ("NOT_CHARGING" != bs["BatteryChargingStatus"])    # double negatives are fun
-        self.is_quick_charging = ("RAPIDLY_CHARGING" == bs["BatteryChargingStatus"])
+        # double negatives are fun
+        self.is_charging = ("NOT_CHARGING" != bs["BatteryChargingStatus"])
+        self.is_quick_charging = (
+            "RAPIDLY_CHARGING" == bs["BatteryChargingStatus"])
 
         self.plugin_state = recs["PluginState"]
-        self.is_connected = ("NOT_CONNECTED" != recs["PluginState"])          # another double negative
-        self.is_connected_to_quick_charger = ("QC_CONNECTED" == recs["PluginState"])
+        # another double negative
+        self.is_connected = ("NOT_CONNECTED" != recs["PluginState"])
+        self.is_connected_to_quick_charger = (
+            "QC_CONNECTED" == recs["PluginState"])
 
-        self._set_cruising_ranges(recs, off_key="CruisingRangeAcOff", on_key="CruisingRangeAcOn")
+        self._set_cruising_ranges(
+            recs, off_key="CruisingRangeAcOff", on_key="CruisingRangeAcOn")
 
         if "TimeRequiredToFull" in recs:
-            self.time_to_full_trickle = timedelta(minutes=_time_remaining(recs["TimeRequiredToFull"]))
+            self.time_to_full_trickle = timedelta(
+                minutes=_time_remaining(recs["TimeRequiredToFull"]))
         else:
             self.time_to_full_trickle = None
 
         if "TimeRequiredToFull200" in recs:
-            self.time_to_full_l2 = timedelta(minutes=_time_remaining(recs["TimeRequiredToFull200"]))
+            self.time_to_full_l2 = timedelta(
+                minutes=_time_remaining(recs["TimeRequiredToFull200"]))
         else:
             self.time_to_full_l2 = None
 
         if "TimeRequiredToFull200_6kW" in recs:
-            self.time_to_full_l2_6kw = timedelta(minutes=_time_remaining(recs["TimeRequiredToFull200_6kW"]))
+            self.time_to_full_l2_6kw = timedelta(
+                minutes=_time_remaining(recs["TimeRequiredToFull200_6kW"]))
         else:
             self.time_to_full_l2_6kw = None
 
@@ -613,7 +646,8 @@ class CarwingsLatestBatteryStatusResponse(CarwingsResponse):
             log.debug("battery_capacity=0, status=%s", status)
             self.battery_percent = 0
         else:
-            self.battery_percent = 100 * float(self.battery_remaining_amount) / 12
+            self.battery_percent = 100 * \
+                float(self.battery_remaining_amount) / 12
 
         # Leaf 2016 has SOC (State Of Charge) in BatteryStatus, a more accurate battery_percentage
         if "SOC" in bs:
@@ -634,13 +668,18 @@ class CarwingsElectricRateSimulationResponse(CarwingsResponse):
         self.month = r["DisplayMonth"]     # e.g. "Feb/2016"
         self.travellist = r["PriceSimulatorDetailInfoDateList"]["PriceSimulatorDetailInfoDate"]
         self.total_number_of_trips = t["TotalNumberOfTrips"]
-        self.total_power_consumption = t["TotalPowerConsumptTotal"]                # in kWh
-        self.total_acceleration_power_consumption = t["TotalPowerConsumptMoter"]   # in kWh
-        self.total_power_regenerated_in_braking = t["TotalPowerConsumptMinus"]     # in kWh
-        self.total_travel_distance_km = float(t["TotalTravelDistance"]) / 1000     # assumed to be in meters
+        # in kWh
+        self.total_power_consumption = t["TotalPowerConsumptTotal"]
+        # in kWh
+        self.total_acceleration_power_consumption = t["TotalPowerConsumptMoter"]
+        # in kWh
+        self.total_power_regenerated_in_braking = t["TotalPowerConsumptMinus"]
+        self.total_travel_distance_km = float(
+            t["TotalTravelDistance"]) / 1000     # assumed to be in meters
 
         self.total_electric_mileage = t["TotalElectricMileage"]
-        self.total_co2_reduction = t["TotalCO2Reductiont"]   # (yep, extra 't' at the end)
+        # (yep, extra 't' at the end)
+        self.total_co2_reduction = t["TotalCO2Reductiont"]
 
         self.electricity_rate = r["ElectricPrice"]
         self.electric_bill = r["ElectricBill"]
