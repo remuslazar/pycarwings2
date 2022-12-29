@@ -125,6 +125,12 @@ class CarwingsLoginResponse(CarwingsResponse):
             },
             "UserInfoRevisionNo":"1"
         }
+
+        example JSON response to login when subscription has expired. Resubscribe via the Nissan Connect EV website.
+        {
+            "status":"AAS-604",
+            "message":"INVALID PARAMS"
+        }
     """
     def __init__(self, response):
         CarwingsResponse.__init__(self, response)
